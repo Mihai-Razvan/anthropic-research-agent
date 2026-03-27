@@ -1,0 +1,5 @@
+python-dotenv
+pyyaml
+anthropic
+bs4
+requests
