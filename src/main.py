@@ -5,6 +5,8 @@ from typing import Dict
 from client import AnthropicClient
 from agent_loop import loop
 from context.context_manager import ContextManager
+from tools.tools_factory import build_tools
+from tools.tool_registry import ToolRegistry
 
 
 PROJECT_DIR = Path(__file__).resolve().parent.parent
@@ -26,7 +28,8 @@ def main() -> None:
 
     client = AnthropicClient(model_name=config["model_name"])
     ctx = ContextManager()
-    loop(client=client, ctx=ctx)
+    tool_registry = ToolRegistry(tools=build_tools())
+    loop(client=client, ctx=ctx, tool_registry=tool_registry)
 
 if __name__ == "__main__":
     main()
