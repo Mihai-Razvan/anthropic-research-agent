@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Dict
 from client import AnthropicClient
 from agent_loop import loop
+from context.context_manager import ContextManager
 
 
 PROJECT_DIR = Path(__file__).resolve().parent.parent
@@ -24,7 +25,8 @@ def main() -> None:
     config = load_config(config_path)
 
     client = AnthropicClient(model_name=config["model_name"])
-    loop(client=client)
+    ctx = ContextManager()
+    loop(client=client, ctx=ctx)
 
 if __name__ == "__main__":
     main()
