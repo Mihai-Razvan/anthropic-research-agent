@@ -3,8 +3,26 @@ from pathlib import Path
 from bs4 import BeautifulSoup
 
 
+def _require_string(kwargs: dict, name: str) -> str | None:
+    value = kwargs.get(name)
+
+    if value is None:
+        return None
+
+    if not isinstance(value, str):
+        return str(value)
+
+    stripped_value = value.strip()
+    if not stripped_value:
+        return None
+
+    return stripped_value
+
 def fetch_url(**kwargs) -> str:
-    url: str = kwargs["url"]
+    url = _require_string(kwargs, "url")
+
+    if url is None:
+        return "Missing required parameter: url"
 
     try:
         response = requests.get(url, timeout=10)
@@ -38,7 +56,11 @@ def fetch_url(**kwargs) -> str:
 
 
 def read_file(**kwargs) -> str:
-    path = Path(kwargs["path"])
+    raw_path = _require_string(kwargs, "path")
+    if raw_path is None:
+        return "Missing required parameter: path"
+
+    path = Path(raw_path)
 
     try:
         return path.read_text(encoding="utf-8")
@@ -47,7 +69,8 @@ def read_file(**kwargs) -> str:
 
 
 def list_files(**kwargs) -> str:
-    path = Path(kwargs.get("path", "."))
+    raw_path = _require_string(kwargs, "path") or "."
+    path = Path(raw_path)
 
     try:
         entries = sorted(item.name for item in path.iterdir())
@@ -58,12 +81,19 @@ def list_files(**kwargs) -> str:
 
 
 def create_file(**kwargs) -> str:
-    path = Path(kwargs["path"])
-    content = kwargs.get("content", "")
+    raw_path = _require_string(kwargs, "path")
+    if raw_path is None:
+        return "Missing required parameter: path"
+
+    content = kwargs.get("content")
+    if content is None:
+        return "Missing required parameter: content"
+
+    path = Path(raw_path)
 
     try:
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(content, encoding="utf-8")
+        path.write_text(str(content), encoding="utf-8")
     except Exception as e:
         return str(e)
 
@@ -71,8 +101,15 @@ def create_file(**kwargs) -> str:
 
 
 def edit_file(**kwargs) -> str:
-    path = Path(kwargs["path"])
-    content = kwargs["content"]
+    raw_path = _require_string(kwargs, "path")
+    if raw_path is None:
+        return "Missing required parameter: path"
+
+    content = kwargs.get("content")
+    if content is None:
+        return "Missing required parameter: content"
+
+    path = Path(raw_path)
 
     if not path.exists():
         return f"File does not exist: {path}"
@@ -81,7 +118,7 @@ def edit_file(**kwargs) -> str:
         return f"Path is not a file: {path}"
 
     try:
-        path.write_text(content, encoding="utf-8")
+        path.write_text(str(content), encoding="utf-8")
     except Exception as e:
         return str(e)
 
