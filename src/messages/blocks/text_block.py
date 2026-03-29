@@ -1,9 +1,11 @@
 from typing import Self
+from dataclasses import dataclass
 from anthropic.types.text_block import TextBlock as AnthropicTextBlock
 from anthropic.types.text_block_param import TextBlockParam as AnthropicTextBlockParam
 from .base_block import BaseBlock
 
 
+@dataclass
 class TextBlock(BaseBlock[AnthropicTextBlock, AnthropicTextBlockParam]):
     text: str
 

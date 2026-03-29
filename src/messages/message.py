@@ -1,6 +1,8 @@
 from typing import Literal, Union
 from .blocks.text_block import TextBlock
 from .blocks.tool_use_block import ToolUseBlock
+from .blocks.tool_result_block import ToolResultBlock
+
 from anthropic.types.message_param import MessageParam
 
 
@@ -9,7 +11,8 @@ class Message:
     content: list[
         Union[
             TextBlock,
-            ToolUseBlock
+            ToolUseBlock,
+            ToolResultBlock
         ]
     ]
 
@@ -21,7 +24,8 @@ class Message:
             self,
             content_block: Union[
                 TextBlock,
-                ToolUseBlock
+                ToolUseBlock,
+                ToolResultBlock
             ]
     ) -> None:
         self.content.append(content_block)

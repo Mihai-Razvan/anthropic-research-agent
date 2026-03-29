@@ -1,9 +1,11 @@
 from typing import Any, Self
+from dataclasses import dataclass
 from anthropic.types.tool_use_block import ToolUseBlock as AnthropicToolUseBlock
 from anthropic.types.tool_use_block_param import ToolUseBlockParam as AnthropicToolUseBlockParam
 from .base_block import BaseBlock
 
 
+@dataclass
 class ToolUseBlock(BaseBlock[AnthropicToolUseBlock, AnthropicToolUseBlockParam]):
     tool_id: str
     name: str

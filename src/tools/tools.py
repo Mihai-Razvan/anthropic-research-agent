@@ -2,8 +2,14 @@ import requests
 from bs4 import BeautifulSoup
 
 
-def fetch_webpage_content(url: str) -> str:
-    response = requests.get(url, timeout=10)
+def fetch_webpage_content(**kwargs) -> str:
+    url: str = kwargs["url"]
+
+    try:
+        response = requests.get(url, timeout=10)
+    except Exception as e:
+        return str(e)
+
     soup = BeautifulSoup(response.text, "html.parser")
 
     for tag in soup(["script", "style", "noscript", "svg", "img", "header", "footer", "nav"]):

@@ -9,7 +9,7 @@ class Tool:
     name: str
     description: str
     input_schema: dict[str, Any]
-    handler: Callable[..., Any]
+    handler: Callable[..., str]
 
     def to_anthropic_tool_param(self) -> ToolParam:
         return {
@@ -18,5 +18,5 @@ class Tool:
             "input_schema": self.input_schema
         }
 
-    def run(self, **kwargs):
-        self.handler() #I will better implement this .. now it's just for test
+    def run(self, **kwargs) -> str:
+        return self.handler(**kwargs)
