@@ -1,5 +1,5 @@
 from .tool import Tool
-from .tools import create_file, edit_file, fetch_url, list_files, read_file
+from .tools import create_file, edit_file, execute_bash, fetch_url, list_files, read_file
 
 
 def _build_fetch_url_tool() -> Tool:
@@ -94,11 +94,30 @@ def _build_edit_file_tool() -> Tool:
         handler=edit_file
     )
 
+
+def _build_execute_bash_tool() -> Tool:
+    return Tool(
+        name="execute_bash",
+        description="Executes a bash command and returns its output",
+        input_schema={
+            "type": "object",
+            "properties": {
+                "command": {
+                    "type": "string",
+                    "description": "Bash command to execute"
+                }
+            },
+            "required": ["command"]
+        },
+        handler=execute_bash
+    )
+
 def build_tools() -> list[Tool]:
     return [
         _build_fetch_url_tool(),
         _build_read_file_tool(),
         _build_list_files_tool(),
         _build_create_file_tool(),
-        _build_edit_file_tool()
+        _build_edit_file_tool(),
+        _build_execute_bash_tool()
     ]

@@ -1,4 +1,5 @@
 import requests
+import subprocess
 from pathlib import Path
 from bs4 import BeautifulSoup
 
@@ -123,3 +124,35 @@ def edit_file(**kwargs) -> str:
         return str(e)
 
     return f"Updated file: {path}"
+
+
+def execute_bash(**kwargs) -> str:
+    command = _require_string(kwargs, "command")
+    if command is None:
+        return "Missing required parameter: command"
+
+    try:
+        result = subprocess.run(
+            ["bash", "-lc", command],
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+    except Exception as e:
+        return str(e)
+
+    output_parts: list[str] = []
+
+    if result.stdout:
+        output_parts.append(result.stdout.strip())
+
+    if result.stderr:
+        output_parts.append(result.stderr.strip())
+
+    if result.returncode != 0:
+        output_parts.append(f"Exit code: {result.returncode}")
+
+    if not output_parts:
+        return "Command completed with no output."
+
+    return "\n".join(output_parts)
