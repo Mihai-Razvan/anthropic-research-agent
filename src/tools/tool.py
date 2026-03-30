@@ -15,7 +15,8 @@ class Tool:
         return {
             "name": self.name,
             "description": self.description,
-            "input_schema": self.input_schema
+            "input_schema": self.input_schema,
+            "strict": True
         }
 
     def run(self, **kwargs) -> str:

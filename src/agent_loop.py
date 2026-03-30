@@ -47,7 +47,7 @@ def make_user_call(client: AnthropicClient, ctx: ContextManager, tool_registry: 
         new_message: Message = convert_response_to_message(response_message)
         ctx.add_message_to_history(new_message)
 
-        #
+        # Find the tool use blocks and handle them
         tool_use_blocks = [block for block in new_message.content if isinstance(block, ToolUseBlock)]
         if not tool_use_blocks:
             continue
