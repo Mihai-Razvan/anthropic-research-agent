@@ -34,7 +34,13 @@ class AnthropicClient:
 
     def call(self, ctx: ContextManager, tool_registry: ToolRegistry) -> AnthropicMessage:
         message_history: list[MessageParam] = [message.to_anthropic_message_param() for message in ctx.messages_history]
-        tool_definitions: list[ToolParam] = [tool.to_anthropic_tool_param() for tool in tool_registry.available_tools]
+        tool_definitions: list[ToolParam] = [
+            tool.to_anthropic_tool_param()
+            for tool in (
+                    tool_registry.available_static_tools +
+                    tool_registry.available_mcp_tools
+            )
+        ]
 
         last_exception: Optional[Exception] = None
         

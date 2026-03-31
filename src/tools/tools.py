@@ -3,6 +3,8 @@ import subprocess
 from pathlib import Path
 from bs4 import BeautifulSoup
 
+from mcp_logic.mcp_client import MCPClient
+
 
 def _require_string(kwargs: dict, name: str) -> str | None:
     value = kwargs.get(name)
@@ -156,3 +158,8 @@ def execute_bash(**kwargs) -> str:
         return "Command completed with no output."
 
     return "\n".join(output_parts)
+
+async def execute_mcp_tool(tool_name: str, mcp_client: MCPClient, **kwargs) -> str:
+    response: str = await mcp_client.call_tool(tool_name=tool_name, **kwargs)
+
+    return response

@@ -1,3 +1,4 @@
+import asyncio
 from dotenv import load_dotenv
 import yaml
 from pathlib import Path
@@ -5,9 +6,11 @@ from typing import Dict
 from client import AnthropicClient
 from agent_loop import loop
 from context.context_manager import ContextManager
-from tools.tools_factory import build_tools
+from src.tools.tool import Tool, MCPTool
+from tools.tools_factory import build_static_tools, build_mcp_tools
 from tools.tool_registry import ToolRegistry
-
+from mcp_logic.mcp_client import MCPClient
+from mcp import Tool as MCPFrameworkTool
 
 PROJECT_DIR = Path(__file__).resolve().parent.parent
 
@@ -18,7 +21,7 @@ def load_config(config_path: Path) -> Dict:
     return config
 
 """Body of the entry point"""
-def main() -> None:
+async def main() -> None:
     load_dotenv()
     config_path = PROJECT_DIR / "config.yaml"
     config = load_config(config_path)
@@ -32,8 +35,21 @@ def main() -> None:
     )
     
     ctx = ContextManager()
-    tool_registry = ToolRegistry(tools=build_tools())
-    loop(client=client, ctx=ctx, tool_registry=tool_registry)
+
+    mcp_client = MCPClient()
+    await mcp_client.connect_to_server("/home/mihai/Projects/Playground/MCP-Server/main.py")
+    mcp_server_tools: list[MCPFrameworkTool] = await mcp_client.list_tools()
+
+    static_tools: list[Tool] = build_static_tools()
+    mcp_tools: list[MCPTool] = build_mcp_tools(mcp_tools=mcp_server_tools)
+    tool_registry = ToolRegistry(static_tools=static_tools, mcp_tools=mcp_tools)
+
+    await loop(
+        client=client,
+        ctx=ctx,
+        tool_registry=tool_registry,
+        mcp_client=mcp_client
+    )
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

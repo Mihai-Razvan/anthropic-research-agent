@@ -1,4 +1,4 @@
-model_name: "claude-sonnet-4-20250514"
+model_name: "claude-opus-4-6"
 max_tokens: 1024
 max_retries: 3
 base_delay: 1.0

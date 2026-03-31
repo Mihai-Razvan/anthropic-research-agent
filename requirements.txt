@@ -3,3 +3,4 @@ pyyaml
 anthropic
 bs4
 requests
+mcp

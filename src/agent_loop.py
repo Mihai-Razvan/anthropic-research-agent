@@ -5,6 +5,7 @@ from messages.message import Message
 from messages.blocks.text_block import TextBlock
 from messages.blocks.tool_use_block import ToolUseBlock
 from messages.blocks.tool_result_block import ToolResultBlock
+from mcp_logic.mcp_client import MCPClient
 
 from anthropic.types.text_block import TextBlock as AnthropicTextBlock
 from anthropic.types.tool_use_block import ToolUseBlock as AnthropicToolUseBlock
@@ -33,7 +34,7 @@ def convert_response_to_message(response_message: AnthropicMessage) -> Message:
 
     return message
 
-def make_user_call(client: AnthropicClient, ctx: ContextManager, tool_registry: ToolRegistry):
+async def make_user_call(client: AnthropicClient, ctx: ContextManager, tool_registry: ToolRegistry, mcp_client: MCPClient):
     response_message: AnthropicMessage | None = None
 
     while response_message is None or response_message.stop_reason == "tool_use":
@@ -55,7 +56,9 @@ def make_user_call(client: AnthropicClient, ctx: ContextManager, tool_registry: 
         new_tool_result_message = Message(role="user")
         for block in tool_use_blocks:
             # Make the corresponding tool call
-            tool_response: str = tool_registry.call_tool(name=block.name, tool_input=block.tool_input)
+            tool_response: str = tool_registry.call_static_tool(name=block.name, tool_input=block.tool_input)
+            if tool_response == "Static tool does not exist":
+                tool_response = await tool_registry.call_mcp_tool(name=block.name, tool_input=block.tool_input, mcp_client=mcp_client)
 
             # Build the tool result block and add to the message
             tool_result_block: ToolResultBlock = ToolResultBlock(tool_use_id=block.tool_id, content=tool_response)
@@ -67,7 +70,7 @@ def make_user_call(client: AnthropicClient, ctx: ContextManager, tool_registry: 
 
 
 """Loop Body"""
-def loop_body(client: AnthropicClient, ctx: ContextManager, tool_registry: ToolRegistry) -> None:
+async def loop_body(client: AnthropicClient, ctx: ContextManager, tool_registry: ToolRegistry, mcp_client: MCPClient) -> None:
 
     print("\n## Turn ##")
     user_input: str = input("User: ")
@@ -80,10 +83,20 @@ def loop_body(client: AnthropicClient, ctx: ContextManager, tool_registry: ToolR
     # Add new user message to context message history
     ctx.messages_history.append(new_user_message)
 
-    make_user_call(client=client, ctx=ctx, tool_registry=tool_registry)
+    await make_user_call(
+        client=client,
+        ctx=ctx,
+        tool_registry=tool_registry,
+        mcp_client=mcp_client
+    )
 
 """Loop"""
-def loop(client: AnthropicClient, ctx: ContextManager, tool_registry: ToolRegistry) -> None:
+async def loop(client: AnthropicClient, ctx: ContextManager, tool_registry: ToolRegistry, mcp_client: MCPClient) -> None:
 
     while True:
-        loop_body(client=client, ctx=ctx, tool_registry=tool_registry)
+        await loop_body(
+            client=client,
+            ctx=ctx,
+            tool_registry=tool_registry,
+            mcp_client=mcp_client
+        )
