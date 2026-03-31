@@ -1,3 +1,5 @@
+from typing import Any
+
 import requests
 import subprocess
 from pathlib import Path
@@ -6,7 +8,7 @@ from bs4 import BeautifulSoup
 from mcp_logic.mcp_client import MCPClient
 
 
-def _require_string(kwargs: dict, name: str) -> str | None:
+async def _require_string(kwargs: dict, name: str) -> str | None:
     value = kwargs.get(name)
 
     if value is None:
@@ -21,7 +23,7 @@ def _require_string(kwargs: dict, name: str) -> str | None:
 
     return stripped_value
 
-def fetch_url(**kwargs) -> str:
+async def fetch_url(**kwargs) -> str:
     url = _require_string(kwargs, "url")
 
     if url is None:
@@ -58,7 +60,7 @@ def fetch_url(**kwargs) -> str:
     return "\n\n".join(parts)
 
 
-def read_file(**kwargs) -> str:
+async def read_file(**kwargs) -> str:
     raw_path = _require_string(kwargs, "path")
     if raw_path is None:
         return "Missing required parameter: path"
@@ -71,7 +73,7 @@ def read_file(**kwargs) -> str:
         return str(e)
 
 
-def list_files(**kwargs) -> str:
+async def list_files(**kwargs) -> str:
     raw_path = _require_string(kwargs, "path") or "."
     path = Path(raw_path)
 
@@ -83,7 +85,7 @@ def list_files(**kwargs) -> str:
     return "\n".join(entries)
 
 
-def create_file(**kwargs) -> str:
+async def create_file(**kwargs) -> str:
     raw_path = _require_string(kwargs, "path")
     if raw_path is None:
         return "Missing required parameter: path"
@@ -103,7 +105,7 @@ def create_file(**kwargs) -> str:
     return f"Created file: {path}"
 
 
-def edit_file(**kwargs) -> str:
+async def edit_file(**kwargs) -> str:
     raw_path = _require_string(kwargs, "path")
     if raw_path is None:
         return "Missing required parameter: path"
@@ -128,7 +130,7 @@ def edit_file(**kwargs) -> str:
     return f"Updated file: {path}"
 
 
-def execute_bash(**kwargs) -> str:
+async def execute_bash(**kwargs) -> str:
     command = _require_string(kwargs, "command")
     if command is None:
         return "Missing required parameter: command"
@@ -159,7 +161,7 @@ def execute_bash(**kwargs) -> str:
 
     return "\n".join(output_parts)
 
-async def execute_mcp_tool(tool_name: str, mcp_client: MCPClient, **kwargs) -> str:
-    response: str = await mcp_client.call_tool(tool_name=tool_name, **kwargs)
+async def execute_mcp_tool(tool_name: str, mcp_client: MCPClient, **kwargs) -> Any:
+    response: Any = await mcp_client.call_tool(tool_name=tool_name, **kwargs)
 
     return response

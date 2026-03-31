@@ -6,11 +6,11 @@ from typing import Dict
 from client import AnthropicClient
 from agent_loop import loop
 from context.context_manager import ContextManager
-from src.tools.tool import Tool, MCPTool
 from tools.tools_factory import build_static_tools, build_mcp_tools
 from tools.tool_registry import ToolRegistry
+from tools.tool import Tool
 from mcp_logic.mcp_client import MCPClient
-from mcp import Tool as MCPFrameworkTool
+from mcp import Tool as MCPTool
 
 PROJECT_DIR = Path(__file__).resolve().parent.parent
 
@@ -38,11 +38,11 @@ async def main() -> None:
 
     mcp_client = MCPClient()
     await mcp_client.connect_to_server("/home/mihai/Projects/Playground/MCP-Server/main.py")
-    mcp_server_tools: list[MCPFrameworkTool] = await mcp_client.list_tools()
+    mcp_server_tools: list[MCPTool] = await mcp_client.list_tools()
 
     static_tools: list[Tool] = build_static_tools()
-    mcp_tools: list[MCPTool] = build_mcp_tools(mcp_tools=mcp_server_tools)
-    tool_registry = ToolRegistry(static_tools=static_tools, mcp_tools=mcp_tools)
+    mcp_tools: list[Tool] = build_mcp_tools(mcp_tools=mcp_server_tools)
+    tool_registry = ToolRegistry(tools=static_tools + mcp_tools)
 
     await loop(
         client=client,

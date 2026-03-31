@@ -9,24 +9,6 @@ class Tool:
     name: str
     description: str
     input_schema: dict[str, Any]
-    handler: Callable[..., str]
-
-    def to_anthropic_tool_param(self) -> ToolParam:
-        return {
-            "name": self.name,
-            "description": self.description,
-            "input_schema": self.input_schema,
-            "strict": False
-        }
-
-    def run(self, **kwargs) -> str:
-        return self.handler(**kwargs)
-
-@dataclass
-class MCPTool:
-    name: str
-    description: str
-    input_schema: dict[str, Any]
     handler: Callable[..., Awaitable[str]]
 
     def to_anthropic_tool_param(self) -> ToolParam:
@@ -37,5 +19,5 @@ class MCPTool:
             "strict": False
         }
 
-    async def run(self, **kwargs) -> str:
+    async def run(self, **kwargs) -> Any:
         return await self.handler(**kwargs)

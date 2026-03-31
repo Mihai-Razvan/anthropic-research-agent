@@ -1,14 +1,14 @@
-from mcp import Tool as MCPFrameworkTool
+from mcp import Tool as MCPTool
 
-from .tool import Tool, MCPTool
+from .tool import Tool
 from .tools import create_file, edit_file, execute_bash, fetch_url, list_files, read_file, execute_mcp_tool
 
 
-def _build_tools_from_mcp_tools(mcp_tools: list[MCPFrameworkTool]) -> list[MCPTool]:
-    tools: list[MCPTool] = []
+def _build_tools_from_mcp_tools(mcp_tools: list[MCPTool]) -> list[Tool]:
+    tools: list[Tool] = []
 
     for mcp_tool in mcp_tools:
-        tool: MCPTool = MCPTool(
+        tool: Tool = Tool(
             name=mcp_tool.name,
             description=mcp_tool.description,
             input_schema=mcp_tool.inputSchema,
@@ -139,5 +139,5 @@ def build_static_tools() -> list[Tool]:
         _build_execute_bash_tool(),
     ]
 
-def build_mcp_tools(mcp_tools: list[MCPFrameworkTool]) -> list[MCPTool]:
+def build_mcp_tools(mcp_tools: list[MCPTool]) -> list[Tool]:
     return _build_tools_from_mcp_tools(mcp_tools=mcp_tools)

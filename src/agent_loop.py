@@ -1,3 +1,5 @@
+from typing import Any
+
 from client import AnthropicClient
 from context.context_manager import ContextManager
 from tools.tool_registry import ToolRegistry
@@ -56,9 +58,7 @@ async def make_user_call(client: AnthropicClient, ctx: ContextManager, tool_regi
         new_tool_result_message = Message(role="user")
         for block in tool_use_blocks:
             # Make the corresponding tool call
-            tool_response: str = tool_registry.call_static_tool(name=block.name, tool_input=block.tool_input)
-            if tool_response == "Static tool does not exist":
-                tool_response = await tool_registry.call_mcp_tool(name=block.name, tool_input=block.tool_input, mcp_client=mcp_client)
+            tool_response: Any = await tool_registry.call_tool(mcp_client=mcp_client, name=block.name, tool_input=block.tool_input)
 
             # Build the tool result block and add to the message
             tool_result_block: ToolResultBlock = ToolResultBlock(tool_use_id=block.tool_id, content=tool_response)
