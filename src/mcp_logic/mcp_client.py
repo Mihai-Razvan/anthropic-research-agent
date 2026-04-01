@@ -3,6 +3,7 @@ from typing import Optional
 
 from mcp import ClientSession, StdioServerParameters, stdio_client
 from mcp import Tool as MCPTool
+from mcp.types import TextContent
 
 
 class MCPClient:
@@ -29,4 +30,10 @@ class MCPClient:
 
     async def call_tool(self, tool_name: str, **kwargs) -> str:
         response = await self.session.call_tool(name=tool_name, arguments=kwargs)
-        return str(response.content)
+        text_blocks: list[str] = [
+            block.text
+            for block in response.content
+            if isinstance(block, TextContent)
+        ]
+
+        return "\n".join(text_blocks)

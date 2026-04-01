@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 from mcp_logic.mcp_client import MCPClient
 
 
-async def _require_string(kwargs: dict, name: str) -> str | None:
+def _require_string(kwargs: dict, name: str) -> str | None:
     value = kwargs.get(name)
 
     if value is None:
